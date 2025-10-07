@@ -23,11 +23,11 @@ echo $SFDX_AUTH_URL > sfdx_auth.txt
 sf org login sfdx-url --sfdx-url-file sfdx_auth.txt --set-default --alias SFOrg
 rm sfdx_auth.txt
 
-echo "Diff creation command: sf sgd source delta --to $REVISION_TO --from $REVISION_FROM --output diffdeploy/ --generate-delta --source force-app/"
+echo "Diff creation command: sf sgd source delta --to $REVISION_TO --from $REVISION_FROM --output-dir diffdeploy/ --generate-delta --source-dir force-app/"
 # Prepare diff
 rm -rf diffdeploy
 mkdir diffdeploy
-sf sgd source delta --to $REVISION_TO --from $REVISION_FROM --output diffdeploy/ --generate-delta --source force-app/
+sf sgd source delta --to $REVISION_TO --from $REVISION_FROM --output-dir diffdeploy/ --generate-delta --source-dir force-app/
 
 # If debugging, output the delta file system and package.xml
 if [[ $DEBUG_LOGGING = true ]]; then
