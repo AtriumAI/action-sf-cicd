@@ -1,11 +1,17 @@
 #!/bin/bash
 set -o errexit -o pipefail -o noclobber -o nounset
-export PATH=$(pwd)/node_modules/.bin:$PATH
+
+# Download sf binary and setup
+wget -q $SF_DOWNLOAD_URL -O sf-linux-x64.tar.xz
+mkdir ~/sf-cli
+tar xJf sf-linux-x64.tar.xz -C ~/sf-cli --strip-components 1
+export PATH=~/sf-cli/bin:$PATH
+
 sf version
 
-# Ensure we're linked to sfdx-git-delta
-sf plugins link node_modules/sfdx-git-delta
-sf plugins
+# Install additional plugins
+echo 'y' | sf plugins install sfdx-git-delta@$SFDX_GIT_DELTA_VERSION
+echo 'y' | sf plugins install code-analyzer@$SF_CODE_ANALYZER_VERSION
 
 # Set the default logging level
 SF_LOG_LEVEL='info'
