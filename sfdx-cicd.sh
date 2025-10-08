@@ -1,11 +1,17 @@
 #!/bin/bash
 set -o errexit -o pipefail -o noclobber -o nounset
-export PATH=$(pwd)/node_modules/.bin:$PATH
+
+# Download sf binary and setup
+wget -q $SF_DOWNLOAD_URL -O sf-linux-x64.tar.xz
+mkdir ~/sf-cli
+tar xJf sf-linux-x64.tar.xz -C ~/sf-cli --strip-components 1
+export PATH=~/sf-cli/bin:$PATH
+
 sf version
 
-# Ensure we're linked to sfdx-git-delta
-sf plugins link node_modules/sfdx-git-delta
-sf plugins
+# Install additional plugins
+echo 'y' | sf plugins install sfdx-git-delta@$SFDX_GIT_DELTA_VERSION
+echo 'y' | sf plugins install code-analyzer@$SF_CODE_ANALYZER_VERSION
 
 # Set the default logging level
 SF_LOG_LEVEL='info'
@@ -17,11 +23,11 @@ echo $SFDX_AUTH_URL > sfdx_auth.txt
 sf org login sfdx-url --sfdx-url-file sfdx_auth.txt --set-default --alias SFOrg
 rm sfdx_auth.txt
 
-echo "Diff creation command: sf sgd source delta --to $REVISION_TO --from $REVISION_FROM --output diffdeploy/ --generate-delta --source force-app/"
+echo "Diff creation command: sf sgd source delta --to $REVISION_TO --from $REVISION_FROM --output-dir diffdeploy/ --generate-delta --source-dir force-app/"
 # Prepare diff
 rm -rf diffdeploy
 mkdir diffdeploy
-sf sgd source delta --to $REVISION_TO --from $REVISION_FROM --output diffdeploy/ --generate-delta --source force-app/
+sf sgd source delta --to $REVISION_TO --from $REVISION_FROM --output-dir diffdeploy/ --generate-delta --source-dir force-app/
 
 # If debugging, output the delta file system and package.xml
 if [[ $DEBUG_LOGGING = true ]]; then
