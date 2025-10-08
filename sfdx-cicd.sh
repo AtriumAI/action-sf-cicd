@@ -1,13 +1,23 @@
 #!/bin/bash
 set -o errexit -o pipefail -o noclobber -o nounset
 
-# Download sf binary and setup
-wget -q $SF_DOWNLOAD_URL -O sf-linux-x64.tar.xz
-mkdir ~/sf-cli
-tar xJf sf-linux-x64.tar.xz -C ~/sf-cli --strip-components 1
+# Download sf binary and setup if it does not already exist
+if test -f ~/sf-cli/bin/sf; then
+  echo "Using existing sf install"
+else
+  wget -q $SF_DOWNLOAD_URL -O sf-linux-x64.tar.xz
+  mkdir ~/sf-cli
+  tar xJf sf-linux-x64.tar.xz -C ~/sf-cli --strip-components 1
+fi
+
 export PATH=~/sf-cli/bin:$PATH
 
-sf version
+if [[ $DEBUG_LOGGING = true ]]; then
+  echo "DEBUG: sf binary installed to:"
+  which sf
+  echo "DEBUG: sf version:"
+  sf version
+fi
 
 # Install additional plugins
 echo 'y' | sf plugins install sfdx-git-delta@$SFDX_GIT_DELTA_VERSION
